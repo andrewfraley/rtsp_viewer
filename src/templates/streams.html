@@ -1,0 +1,48 @@
+<!doctype html>
+<title>Streams</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+<body>
+
+  {%- for x in range(data['streams']|length) %}
+  <video id="video{{ x }}" autoplay="true" controls="controls" type='application/x-mpegURL'></video>
+  {%endfor%}
+
+
+
+<script>
+  if (Hls.isSupported()) {
+
+    var cam_urls = {
+
+    }
+
+    var config = {
+      "enableWorker": true,
+      "maxBufferLength": 1,
+      "liveBackBufferLength": 0,
+      "liveSyncDuration": 0,
+      "liveMaxLatencyDuration": 5,
+      "liveDurationInfinity": true,
+      "highBufferWatchdogPeriod": 1,
+    };
+
+    {% for x in range(data['streams'] | length) %}
+      var hls{{x}} = new Hls(config);
+      var video{{x}} = document.getElementById('video{{x}}');
+      hls{{x}}.attachMedia(video{{x}});
+
+      hls{{x}}.on(Hls.Events.MEDIA_ATTACHED, function () {
+        console.log("video{{x}} and hls.js are now bound together !");
+        hls{{x}}.loadSource("/static/playlist{{x}}.m3u8");
+        hls{{x}}.on(Hls.Events.MANIFEST_PARSED, function (event, data) {
+        });
+      });
+    {% endfor %}
+
+  } else {
+    console.log('HLS not supported!')
+  }
+</script>
+</body>
+</html>
